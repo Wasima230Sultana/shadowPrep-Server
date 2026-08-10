@@ -27,27 +27,20 @@ app.get("/", (req, res) => {
 export async function connectToMongoDB() {
     try {
         await client.connect();
-        console.log(
-            "You successfully connected to MongoDB!"
-        );
+
+        console.log("You successfully connected to MongoDB!");
 
         return client;
-
     } catch (err) {
-        console.dir(err);
+        console.error("MongoDB connection error:", err);
+        throw err;
     }
-}
-
-export async function disconnectFromMongoDB() {
-    await client.close();
 }
 
 
 // ===============================
 // AI ANSWER EVALUATION
 // ===============================
-
-
 
 
 app.post("/api/evaluate-answer", async (req, res) => {
@@ -224,10 +217,19 @@ app.get("/api/interviews/result/:id", async (req, res) => {
 
 
 
-connectToMongoDB();
+async function startServer() {
+    try {
+        await connectToMongoDB();
 
-app.listen(port, () => {
-    console.log(
-        `ShadowPrep server running on port ${port}`
-    );
-});
+        app.listen(port, () => {
+            console.log(
+                `ShadowPrep server running on port ${port}`
+            );
+        });
+    } catch (error) {
+        console.error("Failed to start server:", error);
+        process.exit(1);
+    }
+}
+
+startServer();
