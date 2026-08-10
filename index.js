@@ -12,7 +12,7 @@ dns.setServers(["1.1.1.1", "8.8.8.8"]);
 const app = express()
 const port = process.env.PORT || 3000;
 
-console.log(`Hello ${process.env.HELLO}`)
+// console.log(`Hello ${process.env.HELLO}`)
 
 app.use(cors())
 app.use(express.json())
