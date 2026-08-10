@@ -11,13 +11,8 @@ dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 const app = express()
 const port = process.env.PORT || 3000;
-
-// console.log(`Hello ${process.env.HELLO}`)
-
 app.use(cors())
 app.use(express.json())
-
-
 const client = new MongoClient(process.env.MONGODB_URI);
 
 app.get("/", (req, res) => {
@@ -36,12 +31,6 @@ export async function connectToMongoDB() {
         throw err;
     }
 }
-
-
-// ===============================
-// AI ANSWER EVALUATION
-// ===============================
-
 
 app.post("/api/evaluate-answer", async (req, res) => {
     try {
@@ -213,9 +202,6 @@ app.get("/api/interviews/result/:id", async (req, res) => {
         });
     }
 });
-
-
-
 
 async function startServer() {
     try {
