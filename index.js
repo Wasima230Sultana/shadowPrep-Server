@@ -18,7 +18,7 @@ app.use(cors())
 app.use(express.json())
 
 
-const client = new MongoClient(`mongodb+srv://${process.env.SHADOEPREP_USER}:${process.env.SHADOEPREP_PASS}@cluster0.6tutdbk.mongodb.net/?appName=Cluster0`);
+const client = new MongoClient(process.env.MONGODB_URI);
 
 app.get("/", (req, res) => {
     res.send("Hello world");
