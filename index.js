@@ -4,7 +4,7 @@ import express from "express";
 import cors from "cors"; 
 import dns from "dns";
 import { MongoClient } from 'mongodb';
-import { evaluateAnswer } from "./services/aiEvaluator.js";
+import { evaluateAnswerWithAI } from "./services/aiEvaluator.js";
 
 dns.setDefaultResultOrder('ipv4first');
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
@@ -32,6 +32,42 @@ export async function connectToMongoDB() {
     }
 }
 
+// app.post("/api/evaluate-answer", async (req, res) => {
+//     try {
+//         const {
+//             question,
+//             expectedTopics,
+//             userAnswer,
+//             maxScore,
+//         } = req.body;
+
+//         if (!question || !userAnswer || !maxScore) {
+//             return res.status(400).json({
+//                 message:
+//                     "Question, userAnswer and maxScore are required",
+//             });
+//         }
+
+//         const result = await evaluateAnswer({
+//             question,
+//             expectedTopics: expectedTopics || [],
+//             userAnswer,
+//             maxScore,
+//         });
+
+//         res.json(result);
+
+//     } catch (error) {
+//         console.error("AI evaluation error:", error);
+
+//         res.status(500).json({
+//             message: "Failed to evaluate answer",
+//             error: error.message,
+//         });
+//     }
+// });
+
+
 app.post("/api/evaluate-answer", async (req, res) => {
     try {
         const {
@@ -41,31 +77,50 @@ app.post("/api/evaluate-answer", async (req, res) => {
             maxScore,
         } = req.body;
 
-        if (!question || !userAnswer || !maxScore) {
+        if (
+            !question ||
+            !userAnswer ||
+            maxScore == null ||
+            !Number.isFinite(Number(maxScore)) ||
+            Number(maxScore) <= 0
+        ) {
             return res.status(400).json({
                 message:
-                    "Question, userAnswer and maxScore are required",
+                    "Question, userAnswer and a valid maxScore are required",
             });
         }
 
-        const result = await evaluateAnswer({
-            question,
-            expectedTopics: expectedTopics || [],
-            userAnswer,
+        console.log("Starting AI evaluation:", {
+            questionProvided: Boolean(question),
+            userAnswerProvided: Boolean(userAnswer),
+            expectedTopicsCount: Array.isArray(expectedTopics)
+                ? expectedTopics.length
+                : 0,
             maxScore,
         });
 
-        res.json(result);
+        const result = await evaluateAnswerWithAI({
+            question,
+            expectedTopics: Array.isArray(expectedTopics)
+                ? expectedTopics
+                : [],
+            userAnswer,
+            maxScore: Number(maxScore),
+        });
+
+        console.log("AI evaluation completed successfully");
+
+        return res.status(200).json(result);
 
     } catch (error) {
         console.error("AI evaluation error:", error);
 
-        res.status(500).json({
+        return res.status(500).json({
             message: "Failed to evaluate answer",
-            error: error.message,
         });
     }
 });
+
 app.post("/api/interviews", async (req, res) => {
     try {
         const {

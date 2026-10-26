@@ -4,7 +4,7 @@ const ai = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY,
 });
 
-export async function evaluateAnswer({
+export async function evaluateAnswerWithAI({
     question,
     expectedTopics,
     userAnswer,
